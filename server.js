@@ -9,6 +9,11 @@ const port = 3000;
 app.use(express.json());
 app.use(express.static('public'));
 
+// Adicionando rota para servir o index.html na raiz "/"
+app.get('/', (req, res) => {
+  res.sendFile(__dirname + '/public/index.html');
+});
+
 async function fetchWithRetry(url, retries = 3, delay = 1000) {
   for (let i = 0; i < retries; i++) {
     try {
