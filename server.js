@@ -19,7 +19,7 @@ async function fetchWithRetry(url, retries = 3, delay = 1000) {
     try {
       const response = await fetch(url, {
         headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Apple杆WebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
         },
         timeout: 5000 // Timeout de 5 segundos por recurso
       });
@@ -50,8 +50,10 @@ app.post('/clone', async (req, res) => {
   console.log(`Iniciando clonagem da URL: ${url}`);
 
   try {
+    // Configuração para usar Chrome no Koyeb
     const browser = await puppeteer.launch({
       headless: true,
+      executablePath: process.env.CHROME_EXECUTABLE_PATH || '/usr/bin/chromium-browser', // Caminho padrão no Koyeb
       args: [
         '--no-sandbox',
         '--disable-setuid-sandbox',
