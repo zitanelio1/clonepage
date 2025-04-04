@@ -19,7 +19,7 @@ async function fetchWithRetry(url, retries = 3, delay = 1000) {
     try {
       const response = await fetch(url, {
         headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Apple杆WebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
         },
         timeout: 5000 // Timeout de 5 segundos por recurso
       });
@@ -50,10 +50,10 @@ app.post('/clone', async (req, res) => {
   console.log(`Iniciando clonagem da URL: ${url}`);
 
   try {
-    // Configuração para usar Chrome no Koyeb
+    // Configuração para usar o Chromium instalado no ambiente
     const browser = await puppeteer.launch({
       headless: true,
-      executablePath: process.env.CHROME_EXECUTABLE_PATH || '/usr/bin/chromium-browser', // Caminho padrão no Koyeb
+      executablePath: process.env.CHROME_EXECUTABLE_PATH || '/usr/bin/chromium', // Usar variável de ambiente ou fallback
       args: [
         '--no-sandbox',
         '--disable-setuid-sandbox',
@@ -81,7 +81,7 @@ app.post('/clone', async (req, res) => {
     await page.evaluate(() => {
       return new Promise(resolve => {
         window.scrollTo(0, document.body.scrollHeight);
-        setTimeout(resolve, 3000); // Aumentei para 3 segundos para garantir carregamento de imagens dinâmicas
+        setTimeout(resolve, 3000); // 3 segundos para garantir carregamento de imagens dinâmicas
       });
     });
 
@@ -138,7 +138,7 @@ app.post('/clone', async (req, res) => {
       preserveFontFaces: true,
       preserveImportant: true,
       preserveMediaQueries: true,
-      preservePseudoElements: true // Preservar pseudo-elementos que podem afetar o layout
+      preservePseudoElements: true
     });
 
     const $ = cheerio.load(html, { decodeEntities: false });
@@ -149,7 +149,6 @@ app.post('/clone', async (req, res) => {
     const dynamicTimeout = Math.min(Math.max(totalResources * 1000, 10000), 60000);
 
     const imagePromises = [];
-    // Inlinear imagens do HTML
     images.each((i, img) => {
       const src = $(img).attr('src') || $(img).attr('data-src') || $(img).attr('data-lazy-src');
       if (src && !src.startsWith('data:')) {
@@ -170,7 +169,6 @@ app.post('/clone', async (req, res) => {
       }
     });
 
-    // Inlinear imagens dinâmicas capturadas via JavaScript
     imageUrls.forEach(imageUrl => {
       if (!imageUrl.startsWith('data:')) {
         const resolvedImageUrl = new URL(imageUrl, url).href;
@@ -188,7 +186,6 @@ app.post('/clone', async (req, res) => {
       }
     });
 
-    // Inlinear backgrounds
     elementsWithBg.each((i, elem) => {
       const style = $(elem).attr('style');
       const match = style.match(/url\(['"]?([^'"]+)['"]?\)/);
@@ -211,7 +208,6 @@ app.post('/clone', async (req, res) => {
 
     await Promise.all(imagePromises);
 
-    // Remover scripts para evitar interferências no layout
     $('script').remove();
 
     const finalHtml = `
