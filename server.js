@@ -1,5 +1,6 @@
 const express = require('express');
 const puppeteer = require('puppeteer');
+const { getBrowserPath } = require('@puppeteer/browsers');
 const juice = require('juice');
 const cheerio = require('cheerio');
 const fetch = require('node-fetch');
@@ -49,13 +50,18 @@ app.post('/clone', async (req, res) => {
   console.log(`Iniciando clonagem da URL: ${url}`);
 
   try {
-    // Logar o caminho do Chromium para debug
-    const chromePath = process.env.CHROME_EXECUTABLE_PATH || '/usr/bin/chromium';
-    console.log(`Tentando usar Chromium em: ${chromePath}`);
+    // Obter o caminho do Chromium instalado pelo @puppeteer/browsers
+    const chromePath = getBrowserPath({
+      platform: 'linux',
+      browser: 'chrome',
+      channel: 'stable',
+      cacheDir: process.env.PUPPETEER_CACHE_DIR || '/app/.cache/puppeteer'
+    });
+    console.log(`Usando Chromium em: ${chromePath}`);
 
     const browser = await puppeteer.launch({
       headless: true,
-      executablePath: chromePath,
+      executablePath: chromePath, // Usar o Chromium instalado
       args: [
         '--no-sandbox',
         '--disable-setuid-sandbox',
