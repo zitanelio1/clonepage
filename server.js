@@ -6,6 +6,10 @@ const fetch = require('node-fetch');
 const app = express();
 const port = 3000;
 
+// Desativar o uso do D-Bus para evitar erros
+process.env.DBUS_FATAL_WARNINGS = '0';
+process.env.DISABLE_DBUS = '1';
+
 app.use(express.json());
 app.use(express.static('public'));
 
@@ -49,12 +53,9 @@ app.post('/clone', async (req, res) => {
   console.log(`Iniciando clonagem da URL: ${url}`);
 
   try {
-    const chromePath = process.env.PUPPETEER_EXECUTABLE_PATH || '/app/.cache/puppeteer/chrome/linux-127.0.6533.88/chrome-linux64/chrome';
-    console.log(`Tentando lançar Puppeteer com Chromium em: ${chromePath}`);
-
+    console.log('Lançando Puppeteer com Chromium embutido...');
     const browser = await puppeteer.launch({
       headless: true,
-      executablePath: chromePath,
       args: [
         '--no-sandbox',
         '--disable-setuid-sandbox',
@@ -63,7 +64,7 @@ app.post('/clone', async (req, res) => {
         '--disable-gpu',
         '--disable-features=site-per-process',
         '--no-zygote',
-        '--disable-background-networking', // Reduz uso de memória
+        '--disable-background-networking',
         '--disable-background-timer-throttling',
         '--disable-breakpad',
         '--disable-client-side-phishing-detection',
