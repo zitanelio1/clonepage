@@ -9,7 +9,6 @@ const port = 3000;
 app.use(express.json());
 app.use(express.static('public'));
 
-// Adicionando rota para servir o index.html na raiz "/"
 app.get('/', (req, res) => {
   res.sendFile(__dirname + '/public/index.html');
 });
@@ -21,7 +20,7 @@ async function fetchWithRetry(url, retries = 3, delay = 1000) {
         headers: {
           'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
         },
-        timeout: 5000 // Timeout de 5 segundos por recurso
+        timeout: 5000
       });
       if (response.ok) return response;
       throw new Error(`HTTP ${response.status}`);
@@ -50,10 +49,13 @@ app.post('/clone', async (req, res) => {
   console.log(`Iniciando clonagem da URL: ${url}`);
 
   try {
-    // Configuração para usar o Chromium instalado no ambiente
+    // Logar o caminho do Chromium para debug
+    const chromePath = process.env.CHROME_EXECUTABLE_PATH || '/usr/bin/chromium';
+    console.log(`Tentando usar Chromium em: ${chromePath}`);
+
     const browser = await puppeteer.launch({
       headless: true,
-      executablePath: process.env.CHROME_EXECUTABLE_PATH || '/usr/bin/chromium', // Usar variável de ambiente ou fallback
+      executablePath: chromePath,
       args: [
         '--no-sandbox',
         '--disable-setuid-sandbox',
@@ -65,7 +67,6 @@ app.post('/clone', async (req, res) => {
     });
     const page = await browser.newPage();
 
-    // Otimizar carregamento da página
     await page.setRequestInterception(true);
     page.on('request', (req) => {
       const resourceType = req.resourceType();
@@ -76,16 +77,14 @@ app.post('/clone', async (req, res) => {
       }
     });
 
-    // Aumentar o tempo de espera e executar scripts para carregar elementos dinâmicos
     await page.goto(url, { waitUntil: 'networkidle0', timeout: 60000 });
     await page.evaluate(() => {
       return new Promise(resolve => {
         window.scrollTo(0, document.body.scrollHeight);
-        setTimeout(resolve, 3000); // 3 segundos para garantir carregamento de imagens dinâmicas
+        setTimeout(resolve, 3000);
       });
     });
 
-    // Capturar todas as imagens (estáticas e dinâmicas)
     const imageUrls = await page.evaluate(() => {
       const images = Array.from(document.querySelectorAll('img'));
       const lazyImages = Array.from(document.querySelectorAll('[data-src], [data-lazy-src]'));
@@ -130,7 +129,6 @@ app.post('/clone', async (req, res) => {
     });
     const externalStylesContent = (await Promise.all(stylePromises)).join('\n');
 
-    // Inlinear todos os estilos para preservar o layout 100%
     html = juice(html + `<style>${styles.inlineStyles}\n${externalStylesContent}\n${styles.fontFaces}</style>`, {
       applyStyleTags: true,
       applyLinkTags: true,
