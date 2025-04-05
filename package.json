@@ -8,6 +8,8 @@
   "dependencies": {
     "express": "^4.17.1",
     "puppeteer": "^22.0.0",
+    "puppeteer-core": "^22.0.0",
+    "@sparticuz/chromium": "^127.0.0",
     "juice": "^8.0.0",
     "cheerio": "^1.0.0-rc.10",
     "node-fetch": "^2.6.7"
