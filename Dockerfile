@@ -1,6 +1,6 @@
 FROM node:18-slim
 
-# Instalar apenas dependências mínimas necessárias para o Chromium funcionar
+# Instalar dependências mínimas para o Chromium funcionar
 RUN apt-get update && apt-get install -y \
     fonts-liberation \
     libasound2 \
@@ -34,12 +34,20 @@ RUN apt-get update && apt-get install -y \
 # Definir diretório de trabalho
 WORKDIR /app
 
-# Copiar package.json e instalar dependências (inclui postinstall para Chromium)
-COPY package.json package-lock.json* ./
-RUN npm install
+# Copiar package.json e package-lock.json
+COPY package.json package-lock.json ./
+
+# Instalar dependências e instalar Chromium na versão específica
+RUN npm install && \
+    npx @puppeteer/browsers install chrome@127.0.6533.88 --path /app/.cache/puppeteer && \
+    ls -la /app/.cache/puppeteer/chrome || echo "Chromium não encontrado no cache após instalação" && \
+    chmod -R 755 /app/.cache/puppeteer/chrome
 
 # Copiar o restante do código
 COPY . .
+
+# Definir variável de ambiente para o Puppeteer
+ENV PUPPETEER_EXECUTABLE_PATH=/app/.cache/puppeteer/chrome/linux-127.0.6533.88/chrome-linux64/chrome
 
 # Expor a porta
 EXPOSE 3000
