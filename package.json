@@ -4,11 +4,11 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "postinstall": "npx @puppeteer/browsers install chrome@latest"
+    "postinstall": "npx @puppeteer/browsers install chrome@stable"
   },
   "dependencies": {
     "express": "^4.17.1",
-    "puppeteer": "^13.0.0",
+    "puppeteer": "^22.0.0",
     "juice": "^8.0.0",
     "cheerio": "^1.0.0-rc.10",
     "node-fetch": "^2.6.7",
