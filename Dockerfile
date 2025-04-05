@@ -1,6 +1,6 @@
 FROM node:18-slim
 
-# Instalar dependências mínimas para o Chromium funcionar
+# Instalar dependências completas para o Chromium
 RUN apt-get update && apt-get install -y \
     fonts-liberation \
     libasound2 \
@@ -29,6 +29,10 @@ RUN apt-get update && apt-get install -y \
     libxrender1 \
     libxtst6 \
     ca-certificates \
+    libdrm2 \
+    libxkbcommon0 \
+    libxshmfence1 \
+    libglu1-mesa \
     && rm -rf /var/lib/apt/lists/*
 
 # Definir diretório de trabalho
@@ -48,6 +52,9 @@ COPY . .
 
 # Definir variável de ambiente para o Puppeteer
 ENV PUPPETEER_EXECUTABLE_PATH=/app/.cache/puppeteer/chrome/linux-127.0.6533.88/chrome-linux64/chrome
+
+# Habilitar mais logs de debug do Puppeteer
+ENV PUPPETEER_DEBUG=1
 
 # Expor a porta
 EXPOSE 3000
