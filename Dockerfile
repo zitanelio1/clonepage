@@ -33,6 +33,7 @@ RUN apt-get update && apt-get install -y \
     libxkbcommon0 \
     libxshmfence1 \
     libglu1-mesa \
+    dbus \
     && rm -rf /var/lib/apt/lists/*
 
 # Definir diretório de trabalho
