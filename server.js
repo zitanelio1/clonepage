@@ -1,5 +1,6 @@
 const express = require('express');
-const puppeteer = require('puppeteer');
+const puppeteerCore = require('puppeteer-core');
+const chromium = require('@sparticuz/chromium');
 const juice = require('juice');
 const cheerio = require('cheerio');
 const fetch = require('node-fetch');
@@ -53,10 +54,12 @@ app.post('/clone', async (req, res) => {
   console.log(`Iniciando clonagem da URL: ${url}`);
 
   try {
-    console.log('Lançando Puppeteer com Chromium embutido...');
-    const browser = await puppeteer.launch({
+    console.log('Lançando Puppeteer com Chromium leve (@sparticuz/chromium)...');
+    const browser = await puppeteerCore.launch({
       headless: true,
+      executablePath: await chromium.executablePath(),
       args: [
+        ...chromium.args,
         '--no-sandbox',
         '--disable-setuid-sandbox',
         '--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
