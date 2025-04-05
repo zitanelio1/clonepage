@@ -1,6 +1,6 @@
 FROM node:18
 
-# Instalar dependências mínimas para o Chromium (puppeteer instalará o resto)
+# Instalar dependências mínimas para o Chromium
 RUN apt-get update && apt-get install -y \
     ca-certificates \
     fonts-liberation \
@@ -37,7 +37,7 @@ WORKDIR /app
 # Copiar package.json e package-lock.json
 COPY package.json package-lock.json ./
 
-# Instalar dependências (puppeteer instalará o Chromium automaticamente)
+# Instalar dependências
 RUN npm install
 
 # Copiar o restante do código
