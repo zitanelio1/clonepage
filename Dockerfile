@@ -30,7 +30,11 @@ RUN apt-get update && apt-get install -y \
     libxrender1 \
     libxtst6 \
     ca-certificates \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/* \
+    && ln -sf /usr/bin/chromium /usr/bin/chromium-browser || true  # Criar link simbólico, se necessário
+
+# Verificar se o Chromium está instalado
+RUN which chromium || echo "Chromium não encontrado" && chromium --version || echo "Erro ao executar Chromium"
 
 # Definir variável de ambiente para o caminho do Chromium
 ENV CHROME_EXECUTABLE_PATH=/usr/bin/chromium
