@@ -1,7 +1,8 @@
-FROM node:18-slim
+FROM node:18
 
-# Instalar dependências completas para o Chromium
+# Instalar dependências mínimas para o Chromium (puppeteer instalará o resto)
 RUN apt-get update && apt-get install -y \
+    ca-certificates \
     fonts-liberation \
     libasound2 \
     libatk-bridge2.0-0 \
@@ -28,12 +29,6 @@ RUN apt-get update && apt-get install -y \
     libxrandr2 \
     libxrender1 \
     libxtst6 \
-    ca-certificates \
-    libdrm2 \
-    libxkbcommon0 \
-    libxshmfence1 \
-    libglu1-mesa \
-    dbus \
     && rm -rf /var/lib/apt/lists/*
 
 # Definir diretório de trabalho
@@ -42,20 +37,11 @@ WORKDIR /app
 # Copiar package.json e package-lock.json
 COPY package.json package-lock.json ./
 
-# Instalar dependências e instalar Chromium na versão específica
-RUN npm install && \
-    npx @puppeteer/browsers install chrome@127.0.6533.88 --path /app/.cache/puppeteer && \
-    ls -la /app/.cache/puppeteer/chrome || echo "Chromium não encontrado no cache após instalação" && \
-    chmod -R 755 /app/.cache/puppeteer/chrome
+# Instalar dependências (puppeteer instalará o Chromium automaticamente)
+RUN npm install
 
 # Copiar o restante do código
 COPY . .
-
-# Definir variável de ambiente para o Puppeteer
-ENV PUPPETEER_EXECUTABLE_PATH=/app/.cache/puppeteer/chrome/linux-127.0.6533.88/chrome-linux64/chrome
-
-# Habilitar mais logs de debug do Puppeteer
-ENV PUPPETEER_DEBUG=1
 
 # Expor a porta
 EXPOSE 3000
