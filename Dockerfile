@@ -1,8 +1,7 @@
 FROM node:18-slim
 
-# Instalar dependências necessárias para o Chromium e Puppeteer
+# Instalar apenas dependências mínimas necessárias para o Chromium funcionar
 RUN apt-get update && apt-get install -y \
-    chromium \
     fonts-liberation \
     libasound2 \
     libatk-bridge2.0-0 \
@@ -30,19 +29,12 @@ RUN apt-get update && apt-get install -y \
     libxrender1 \
     libxtst6 \
     ca-certificates \
-    && rm -rf /var/lib/apt/lists/* \
-    && ln -sf /usr/bin/chromium /usr/bin/chromium-browser || true  # Criar link simbólico, se necessário
-
-# Verificar se o Chromium está instalado
-RUN which chromium || echo "Chromium não encontrado" && chromium --version || echo "Erro ao executar Chromium"
-
-# Definir variável de ambiente para o caminho do Chromium
-ENV CHROME_EXECUTABLE_PATH=/usr/bin/chromium
+    && rm -rf /var/lib/apt/lists/*
 
 # Definir diretório de trabalho
 WORKDIR /app
 
-# Copiar package.json e instalar dependências Node.js
+# Copiar package.json e instalar dependências (inclui postinstall para Chromium)
 COPY package.json package-lock.json* ./
 RUN npm install
 
