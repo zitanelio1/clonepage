@@ -62,11 +62,24 @@ app.post('/clone', async (req, res) => {
         '--disable-dev-shm-usage',
         '--disable-gpu',
         '--disable-features=site-per-process',
-        '--no-zygote', // Ajuda em ambientes com recursos limitados
-        '--single-process' // Reduz uso de memória
+        '--no-zygote',
+        '--disable-background-networking', // Reduz uso de memória
+        '--disable-background-timer-throttling',
+        '--disable-breakpad',
+        '--disable-client-side-phishing-detection',
+        '--disable-default-apps',
+        '--disable-extensions',
+        '--disable-hang-monitor',
+        '--disable-popup-blocking',
+        '--disable-prompt-on-repost',
+        '--disable-sync',
+        '--disable-translate',
+        '--metrics-recording-only',
+        '--no-first-run',
+        '--safebrowsing-disable-auto-update'
       ],
-      timeout: 60000, // Aumentar o timeout para 60 segundos
-      dumpio: true // Habilitar logs do Chromium no console
+      timeout: 60000,
+      dumpio: true
     });
     console.log('Caminho do Chromium usado:', browser.process().spawnfile);
     const page = await browser.newPage();
