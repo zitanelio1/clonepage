@@ -49,21 +49,26 @@ app.post('/clone', async (req, res) => {
   console.log(`Iniciando clonagem da URL: ${url}`);
 
   try {
-    // Configurar o Puppeteer para usar o Chromium instalado pelo @puppeteer/browsers
-    console.log('Lançando Puppeteer com Chromium do cache...');
+    const chromePath = process.env.PUPPETEER_EXECUTABLE_PATH || '/app/.cache/puppeteer/chrome/linux-127.0.6533.88/chrome-linux64/chrome';
+    console.log(`Tentando lançar Puppeteer com Chromium em: ${chromePath}`);
+
     const browser = await puppeteer.launch({
       headless: true,
+      executablePath: chromePath,
       args: [
         '--no-sandbox',
         '--disable-setuid-sandbox',
         '--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
         '--disable-dev-shm-usage',
         '--disable-gpu',
-        '--disable-features=site-per-process'
+        '--disable-features=site-per-process',
+        '--no-zygote', // Ajuda em ambientes com recursos limitados
+        '--single-process' // Reduz uso de memória
       ],
-      // O executablePath é opcional, pois o Puppeteer detecta automaticamente o Chromium no cache
-      executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || undefined
+      timeout: 60000, // Aumentar o timeout para 60 segundos
+      dumpio: true // Habilitar logs do Chromium no console
     });
+    console.log('Caminho do Chromium usado:', browser.process().spawnfile);
     const page = await browser.newPage();
 
     await page.setRequestInterception(true);
